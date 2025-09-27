@@ -1,71 +1,61 @@
-import { useCallback, useEffect, useState } from 'react'
-import Button from '../components/Button'
-import ClickCount from '../components/ClickCount'
-import styles from '../styles/home.module.css'
+// Create a to do list
+/* 
+-add items to todo list
+-delete items to todo list
+*/
+import { useState } from 'react';
+import Head from 'next/head';
+import link from 'next/link';
 
-function throwError() {
-  console.log(
-    // The function body() is not defined
-    document.body()
-  )
-}
 
-function Home() {
-  const [count, setCount] = useState(0)
-  const increment = useCallback(() => {
-    setCount((v) => v + 1)
-  }, [setCount])
-
-  useEffect(() => {
-    const r = setInterval(() => {
-      increment()
-    }, 1000)
-
-    return () => {
-      clearInterval(r)
+export default function Home() {
+  //create a state to hold the todo list items with default items like, learn react, learn nextjs, learn copilot
+  // Simple unique ID generator
+  const generateId = () => `${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
+  const [todoList, setTodoList] = useState([
+    { id: generateId(), task: 'Learn React' },
+    { id: generateId(), task: 'Learn Next.js' },
+    { id: generateId(), task: 'Learn Copilot' },
+  ]);
+  // create state for to do list
+  const [newTask, setNewTask] = useState('');
+  //functions tha that hqndle adding new items to the todo list
+  const handleAddTask = () => {
+    if (newTask.trim() !== '') {
+  setTodoList([...todoList, { id: generateId(), task: newTask }]);
+      setNewTask('');
     }
-  }, [increment])
-
+  };
+  //function that handles deleting items from the todo list
+  const handleDeleteTask = (id) => {
+    setTodoList(todoList.filter((task) => task.id !== id));
+  };
+  //render input field, button to add items, and list of todo items with delete button
   return (
-    <main className={styles.main}>
-      <h1>Fast Refresh Demo</h1>
-      <p>
-        Fast Refresh is a Next.js feature that gives you instantaneous feedback
-        on edits made to your React components, without ever losing component
-        state.
-      </p>
-      <hr className={styles.hr} />
-      <div>
-        <p>
-          Auto incrementing value. The counter won't reset after edits or if
-          there are errors.
-        </p>
-        <p>Current value: {count}</p>
-      </div>
-      <hr className={styles.hr} />
-      <div>
-        <p>Component with state.</p>
-        <ClickCount />
-      </div>
-      <hr className={styles.hr} />
-      <div>
-        <p>
-          The button below will throw 2 errors. You'll see the error overlay to
-          let you know about the errors but it won't break the page or reset
-          your state.
-        </p>
-        <Button
-          onClick={(e) => {
-            setTimeout(() => document.parentNode(), 0)
-            throwError()
-          }}
-        >
-          Throw an Error
-        </Button>
-      </div>
-      <hr className={styles.hr} />
-    </main>
-  )
+    <div>
+      <Head>
+        <title>To Do List</title>
+        <meta name="description" content="A simple to do list app" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      <main>
+        <h1>To Do List</h1>
+        <input
+          type="text" 
+          value={newTask}
+          onChange={(e) => setNewTask(e.target.value)} 
+        />
+        <button onClick={handleAddTask}>Add Task</button>
+        <ul>
+          {todoList.map((item) => (
+            <li key={item.id}>
+              {item.task}
+              <button onClick={() => handleDeleteTask(item.id)}>Delete</button>
+            </li>
+          ))}
+        </ul>
+      </main> 
+    </div> 
+  );
 }
 
-export default Home
